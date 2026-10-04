@@ -1,0 +1,7 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+seeded_incidents/*.json
+!seeded_incidents/.gitkeep

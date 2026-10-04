@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  preflight-sandbox:
+    image: postgres:16
+    container_name: preflight_sandbox_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: preflight
+      POSTGRES_PASSWORD: preflight
+      POSTGRES_DB: preflight_sandbox
+    ports:
+      - "5433:5432"   # 5433 on host so it never collides with a local Postgres on 5432
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.track=all"
+      - "-c"
+      - "pg_stat_statements.max=10000"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+      - preflight_sandbox_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U preflight -d preflight_sandbox"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  preflight_sandbox_data:

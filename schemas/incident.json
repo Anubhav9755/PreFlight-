@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PreFlight Incident",
+  "description": "Unified shape every agent reads and writes. Fields are added as the incident moves through the pipeline: Monitor creates the base incident, Diagnoser adds `diagnosis`, Fixer adds `fix`, Reporter adds `report`.",
+  "type": "object",
+  "required": ["incident_id", "source", "trigger_type", "timestamp", "payload", "status"],
+  "properties": {
+    "incident_id": {
+      "type": "string",
+      "description": "Unique id, e.g. inc_20260915_001"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["ci", "prod"],
+      "description": "Which watcher created this incident. Everything downstream branches on this."
+    },
+    "trigger_type": {
+      "type": "string",
+      "description": "e.g. 'migration_missing_concurrently', 'unindexed_query', 'latency_regression'"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "commit_sha": {"type": "string"},
+        "pr_number": {"type": ["integer", "null"]},
+        "file_path": {"type": ["string", "null"]},
+        "sql_snippet": {"type": "string"},
+        "query_fingerprint": {"type": "string"},
+        "observed_latency_ms": {"type": ["number", "null"]},
+        "baseline_latency_ms": {"type": ["number", "null"]}
+      },
+      "required": ["sql_snippet", "query_fingerprint"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["new", "diagnosing", "diagnosed", "fixing", "fixed", "awaiting_approval", "approved", "rejected", "closed"]
+    },
+    "diagnosis": {
+      "type": "object",
+      "description": "Added by the Diagnoser Agent",
+      "properties": {
+        "root_cause": {"type": "string"},
+        "evidence": {"type": "string"},
+        "category": {
+          "type": "string",
+          "enum": ["locking_migration", "missing_index", "n_plus_one", "config_issue", "other"]
+        }
+      }
+    },
+    "fix": {
+      "type": "object",
+      "description": "Added by the Fixer Agent",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["index", "query_rewrite", "config_tune", "rollback"]
+        },
+        "sql_or_diff": {"type": "string"},
+        "benchmark": {
+          "type": "object",
+          "properties": {
+            "before_ms": {"type": "number"},
+            "after_ms": {"type": "number"},
+            "improvement_pct": {"type": "number"}
+          }
+        },
+        "risk_score": {"type": "string", "enum": ["low", "medium", "high"]},
+        "risk_reasoning": {"type": "string"}
+      }
+    },
+    "report": {
+      "type": "object",
+      "description": "Added by the Reporter Agent",
+      "properties": {
+        "pr_comment_markdown": {"type": "string"},
+        "postmortem_markdown": {"type": "string"},
+        "human_decision": {"type": ["string", "null"], "enum": ["approved", "rejected", null]},
+        "decided_by": {"type": ["string", "null"]},
+        "decided_at": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

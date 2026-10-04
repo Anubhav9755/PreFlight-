@@ -1,0 +1,26 @@
+[
+  {
+    "commit_sha": "9c1d2e3",
+    "author": "priya",
+    "message": "Add region filter to admin orders view",
+    "affects": ["orders.region"]
+  },
+  {
+    "commit_sha": "e4f5a6b",
+    "author": "rahul",
+    "message": "Ship 'my orders by email' lookup endpoint for support team",
+    "affects": ["orders.customer_email", "qf_orders_by_customer_email"]
+  },
+  {
+    "commit_sha": "b7c8d9e",
+    "author": "priya",
+    "message": "Bump order_items batch insert size",
+    "affects": ["order_items"]
+  },
+  {
+    "commit_sha": "f1a2b3c",
+    "author": "anmol",
+    "message": "Fix typo in checkout confirmation email copy",
+    "affects": []
+  }
+]
